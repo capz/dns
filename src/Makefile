@@ -1,75 +1,110 @@
-#
-# This Makefile is provided as an example, and principally used when
-# compiling the command-line regression utilities.
-#
-# RE COMPILER WARNINGS: Effort is made to make dns.c compile as cleanly as
-# possible, although often times I will use compiler attributes or pragmas
-# to quiet warnings where refactoring would discard perfectly clear,
-# concise, and correct code.
-#
-# RE VISUAL STUDIO: dns.c does not currently compile with Visual Studio.
-# Until circa 2014 Microsoft had frozen C support at C95, whereas dns.c uses
-# some newer C99 and C11 constructs not available in C95 or as MSVC
-# extensions. Now that MSV supports dns.c could be made to compile with MSVC
-# with moderate effort. Patches welcome.
-#
-ALL_CPPFLAGS = -DDNS_DEBUG -DDNS_MAIN $(CPPFLAGS)
-ALL_CFLAGS   = -std=gnu99 -Wall -Wextra -O2 -g -fstack-protector $(CFLAGS)
-ALL_LIBS     = $(LIBS)
+#---------------------------------------------------------------------------------
+# Clear the implicit built in rules
+#---------------------------------------------------------------------------------
+.SUFFIXES:
+#---------------------------------------------------------------------------------
 
-EXE_CC           = $(shell find $$(echo $${PATH} | tr ':' ' ') -maxdepth 1 -name \*mingw32-gcc -o -name gcc-\* | while read GCC; do echo $$($$GCC -v 2>&1 | tail -n1 | cut -d' ' -f3) $$GCC; done | sort -nr | head -n1 | cut -d' ' -f2)
-EXE_CPPFLAGS     = $(ALL_CPPFLAGS)
-EXE_CFLAGS       =
-EXE_LIBS         =
-ALL_EXE_CPPFLAGS = $(EXE_CPPFLAGS)
-ALL_EXE_CFLAGS   = -std=gnu99 -Wall -O2 -g $(EXE_CFLAGS)
-ALL_EXE_LIBS     = -lws2_32 -lgdi32 $(EXE_LIBS)
+ifeq ($(OS), Windows_NT)
+#don't care!
+else
+	ifeq ($(shell uname -s, Darwin)) #detect mac os x, since it doesn't allow access to the environment variables in 10.10+
+	DEVKITPRO := $(HOME)/devkitPro
+	DEVKITPPC := $(DEVKITPRO)/devkitPPC
+endif
+ifeq ($(strip $(DEVKITPPC)),)
+$(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
+endif
 
-all: dns
+include $(DEVKITPPC)/gamecube_rules
+#---------------------------------------------------------------------------------
+# TARGET is the name of the output
+# BUILD is the directory where object files & intermediate files will be placed
+# SOURCES is a list of directories containing source code
+# INCLUDES is a list of directories containing extra header files
+#---------------------------------------------------------------------------------
+TARGET		:=	$(notdir $(CURDIR))
+BUILD		:=	build
+SOURCES		:=	source
+DATA		:=	data
+INCLUDES	:=
+
+#---------------------------------------------------------------------------------
+# options for code generation
+#---------------------------------------------------------------------------------
+
+CFLAGS	=  -std=gnu99 -Wextra -fstack-protector -g -O2 -Wall $(MACHDEP) $(INCLUDES) -I/opt/devkitpro/libogc/include/
+CXXFLAGS	=	$(CFLAGS) -std=c++11 -DDNS_DEBUG -DDNS_MAIN
+
+LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map 
+
+#---------------------------------------------------------------------------------
+# any extra libraries we wish to link with the project
+# the order can-be/is critical
+#---------------------------------------------------------------------------------
+LIBS	:= -lbba -logc -lm 
+#---------------------------------------------------------------------------------
+# list of directories containing libraries, this must be the top level containing
+# include and lib
+#---------------------------------------------------------------------------------
+LIBDIRS	:=
+
+#---------------------------------------------------------------------------------
+# no real need to edit anything past this point unless you need to add additional
+# rules for different file extensions
+#---------------------------------------------------------------------------------
+
+export OUTPUT	:=	$(CURDIR)/$(TARGET)
+
+export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
+					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
+
+export DEPSDIR	:=	$(CURDIR)/$(BUILD)
+
+#---------------------------------------------------------------------------------
+# automatically build a list of object files for our project
+#---------------------------------------------------------------------------------
+CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
+CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
+sFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
+SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
+BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+
+#---------------------------------------------------------------------------------
+# use CXX for linking C++ projects, CC for standard C
+#---------------------------------------------------------------------------------
+ifeq ($(strip $(CPPFILES)),)
+	export LD	:=	$(CC)
+else
+	export LD	:=	$(CXX)
+endif
+
+export OFILES	:=	$(addsuffix .o,$(BINFILES)) \
+					$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
+					$(sFILES:.s=.o) $(SFILES:.S=.o)
+
+#---------------------------------------------------------------------------------
+# build a list of include paths
+#---------------------------------------------------------------------------------
+export INCLUDE	:=	$(foreach dir,$(INCLUDES), -iquote $(CURDIR)/$(dir)) \
+					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+					-I$(CURDIR)/$(BUILD) \
+					-I$(LIBOGC_INC)
+
+#---------------------------------------------------------------------------------
+# build a list of library paths
+#---------------------------------------------------------------------------------
+export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
+					-L$(LIBOGC_LIB)
+
+export OUTPUT	:=	$(CURDIR)/$(TARGET)
+.PHONY: $(BUILD) clean
+
+#---------------------------------------------------------------------------------
+$(BUILD):
+	@[ -d $@ ] || mkdir -p $@
+	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+
 
 dns: dns.c dns.h
-	$(CC) $(ALL_CFLAGS) $(ALL_CPPFLAGS) -o $@ dns.c $(ALL_LIBS)
+	$(CC) $(CFLAGS) -o $@ dns.c $(LIBPATHS)
 
-dns.exe: dns.c dns.h
-	$(EXE_CC) $(ALL_EXE_CFLAGS) $(ALL_EXE_CPPFLAGS) -o $@ dns.c $(ALL_EXE_LIBS)
-
-dns.S: dns.c dns.h
-	$(CC) $(ALL_CFLAGS) -S $(ALL_CPPFLAGS) -o $@ dns.c
-
-
-SPF_CPPFLAGS += 
-SPF_CFLAGS   += -std=gnu99 -Wall -O2 -g -fstack-protector
-
-%.c: %.rl
-	ragel -C -o $@ $<
-
-spf: spf.c cache.c zone.c dns.c
-	$(CC) $(SPF_CFLAGS) $(SPF_CPPFLAGS) -DSPF_MAIN -DSPF_DEBUG -DSPF_CACHE=1 -o $@ $^
-
-.PHONY: check spf.t
-
-spf.t: spf
-	@PATH=".:$${PATH}"; $@ -p $^
-
-check: spf.t
-
-
-ZONE_CPPFLAGS += 
-ZONE_CFLAGS   += $(SPF_CFLAGS)
-
-zone: zone.c dns.c
-	$(CC) $(ZONE_CFLAGS) $(ZONE_CPPFLAGS) -DZONE_MAIN -o $@ $^
-
-
-CACHE_CPPFLAGS += 
-CACHE_CFLAGS   += $(SPF_CFLAGS)
-
-cache: cache.c zone.c dns.c
-	$(CC) $(CACHE_CFLAGS) $(CACHE_CPPFLAGS) -DCACHE_MAIN -o $@ $^
-
-
-.PHONY: clean
-
-clean:
-	rm -f dns dns.S dns.exe spf spf.c cache cache.o zone zone.o zone.c
-	rm -fr *.dSYM

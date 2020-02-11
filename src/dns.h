@@ -33,20 +33,12 @@
 
 #include <time.h>		/* time_t */
 
-#if _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
-#include <sys/param.h>		/* BYTE_ORDER BIG_ENDIAN _BIG_ENDIAN */
-#include <sys/types.h>		/* socklen_t */
-#include <sys/socket.h>		/* struct socket */
+#include <unistd.h>
+#include <ogcsys.h>
+#include <gccore.h>
+#include <errno.h>
 
-#include <poll.h>		/* POLLIN POLLOUT */
-
-#include <netinet/in.h>		/* struct in_addr struct in6_addr */
-
-#include <netdb.h>		/* struct addrinfo */
-#endif
+#include <network.h>		/* struct socket */
 
 
 /*
@@ -183,18 +175,6 @@ DNS_PUBLIC int *dns_debug_p(void);
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#if defined(POLLIN)
-#define DNS_POLLIN POLLIN
-#else
-#define DNS_POLLIN  1
-#endif
-
-#if defined(POLLOUT)
-#define DNS_POLLOUT POLLOUT
-#else
-#define DNS_POLLOUT 2
-#endif
-
 
 /*
  * See Application Interface below for configuring libevent bitmasks instead
@@ -248,7 +228,6 @@ enum dns_type {
 	DNS_T_PTR	= 12,
 	DNS_T_MX	= 15,
 	DNS_T_TXT	= 16,
-	DNS_T_AAAA	= 28,
 	DNS_T_SRV	= 33,
 	DNS_T_OPT	= 41,
 	DNS_T_SSHFP	= 44,
@@ -587,25 +566,6 @@ DNS_PUBLIC size_t dns_a_arpa(void *, size_t, const struct dns_a *);
 
 
 /*
- * AAAA  R E S O U R C E  R E C O R D
- */
-
-struct dns_aaaa {
-	struct in6_addr addr;
-}; /* struct dns_aaaa */
-
-DNS_PUBLIC int dns_aaaa_parse(struct dns_aaaa *, struct dns_rr *, struct dns_packet *);
-
-DNS_PUBLIC int dns_aaaa_push(struct dns_packet *, struct dns_aaaa *);
-
-DNS_PUBLIC int dns_aaaa_cmp(const struct dns_aaaa *, const struct dns_aaaa *);
-
-DNS_PUBLIC size_t dns_aaaa_print(void *, size_t, struct dns_aaaa *);
-
-DNS_PUBLIC size_t dns_aaaa_arpa(void *, size_t, const struct dns_aaaa *);
-
-
-/*
  * MX  R E S O U R C E  R E C O R D
  */
 
@@ -826,7 +786,6 @@ DNS_PUBLIC size_t dns_txt_print(void *, size_t, struct dns_txt *);
 
 union dns_any {
 	struct dns_a a;
-	struct dns_aaaa aaaa;
 	struct dns_mx mx;
 	struct dns_ns ns;
 	struct dns_cname cname;
