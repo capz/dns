@@ -9,8 +9,8 @@ Removed:
 
 ## Home Page
 
-This project's home page and main repository is located at
-http://25thandClement.com/~william/projects/dns.c.html.
+~~This project's home page and main repository is located at
+~~http://25thandClement.com/~william/projects/dns.c.html.
 
 But feel free to rely on Github for tracking the source tree.
 
@@ -81,16 +81,6 @@ A non-blocking DNS resolver library in a single .c file.
 ## Build
 
 use the makefile to build a dol executable
-
-## Usage
-
-Until the API is properly documented you must rely on the source code. The
-header, dns.h, and the API is fairly straight-forward, with each object
-implementating a simple, consistent, and hopefully self-explanatory pattern.
-
-The last 1/6 of dns.c implements a command-line utility and a full regression
-testing suite permitting each component to be tested individually. This is
-excellent usage documentation as well.
 
 ## License
 
