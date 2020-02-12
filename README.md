@@ -7,11 +7,6 @@ Removed:
 * Use of standard sockets functionality
 * Any source not relating to DNS functionality (SPF, etc.)
 
-## Home Page
-
-~~This project's home page and main repository is located at
-~~http://25thandClement.com/~william/projects/dns.c.html.
-
 But feel free to rely on Github for tracking the source tree.
 
 ## Description
@@ -45,16 +40,13 @@ A non-blocking DNS resolver library in a single .c file.
   single dns_rr_foreach loop. Interruptible loops supported with
   dns_rr_grep.
 
-* ~~Thoughtful /etc/resolv.conf, /etc/nsswitch.conf, and /etc/hosts
- ~~integration. Easy to change system defaults, or to skip entirely.
-
 * getaddrinfo-like auxiliary interface.
 
 * Pluggable cache interface. Application can specify a synchronous or
   asynchronous local cache for use by the core resolver.
 
 * "Smart" queries which automatically dereference NS, MX, SRV, PTR, etc. to
-  A or ~~AAAA~~ records. Recursing, caching nameservers don't usually do this
+  A records. Recursing, caching nameservers don't usually do this
   explicitly, but merely rely on the authoritative server to include glue,
   which won't exist for out-of-bailiwick references (very common these
   days). This means software must do two separate logical DNS operations; a
@@ -70,13 +62,6 @@ A non-blocking DNS resolver library in a single .c file.
 
 * Statistics interface. Retrieve count of packets and bytes, sent and
   received; and number of queries processed.
-
-* ~~Used successfully by many projects for many years, including several
-  ~~Silicon Valley giants.
-
-* Regularly testing on ~~Linux, OS X, OpenBSD, FreeBSD, NetBSD, and Solaris.
-  ~~Occassionally tested in MinGW environment. Builds with GCC, Clang, and
-  ~~SunPro.
 
 ## Build
 
