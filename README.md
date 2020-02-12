@@ -1,6 +1,12 @@
 ## Notes
 This fork is a hacked-up version of the original, modified to work on a Nintendo Gamecube (at least, that's the aim, since libogc doesn't have DNS features)
 
+Removed:
+* IPV6 support
+* platform support for anything other than Nintendo Gamecube
+* Use of standard sockets functionality
+* Any source not relating to DNS functionality (SPF, etc.)
+
 ## Home Page
 
 This project's home page and main repository is located at
@@ -32,15 +38,15 @@ A non-blocking DNS resolver library in a single .c file.
   assumptions.
 
 * Type-specific interfaces for A, ~~AAAA~~, CNAME, NS, SOA, PTR, MX, TXT, SRV,
-  SSHFP, and SPF records.
+  SSHFP, ~~and SPF~~ records.
 
 * Restartable record iterators with user-specified sorting. Iterate over MX
   or SRV records in semantic order (i.e. preference and priority) using a
   single dns_rr_foreach loop. Interruptible loops supported with
   dns_rr_grep.
 
-*~~Thoughtful /etc/resolv.conf, /etc/nsswitch.conf, and /etc/hosts
- integration. Easy to change system defaults, or to skip entirely.
+* ~~Thoughtful /etc/resolv.conf, /etc/nsswitch.conf, and /etc/hosts
+ ~~integration. Easy to change system defaults, or to skip entirely.
 
 * getaddrinfo-like auxiliary interface.
 
@@ -65,8 +71,8 @@ A non-blocking DNS resolver library in a single .c file.
 * Statistics interface. Retrieve count of packets and bytes, sent and
   received; and number of queries processed.
 
-* Used successfully by many projects for many years, including several
-  Silicon Valley giants.
+* ~~Used successfully by many projects for many years, including several
+  ~~Silicon Valley giants.
 
 * Regularly testing on ~~Linux, OS X, OpenBSD, FreeBSD, NetBSD, and Solaris.
   ~~Occassionally tested in MinGW environment. Builds with GCC, Clang, and
@@ -74,8 +80,7 @@ A non-blocking DNS resolver library in a single .c file.
 
 ## Build
 
-dns.c is intended to be dropped into existing project builds. The included
-Makefile is mostly for development and testing.
+use the makefile to build a dol executable
 
 ## Usage
 
