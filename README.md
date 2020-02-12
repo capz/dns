@@ -1,3 +1,6 @@
+## Notes
+This fork is a hacked-up version of the original, modified to work on a Nintendo Gamecube (at least, that's the aim, since libogc doesn't have DNS features)
+
 ## Home Page
 
 This project's home page and main repository is located at
@@ -24,11 +27,11 @@ A non-blocking DNS resolver library in a single .c file.
   methods: pollfd, events, and timeout.
 
 * Core DNS API built around actual DNS packet; as generic as DNS itself.
-  This makes querying and manipulating records other than A, AAAA, and PTR
+  This makes querying and manipulating records other than A, ~~AAAA~~, and PTR
   much easier, yet with similar simplicity as API's which make annoying
   assumptions.
 
-* Type-specific interfaces for A, AAAA, CNAME, NS, SOA, PTR, MX, TXT, SRV,
+* Type-specific interfaces for A, ~~AAAA~~, CNAME, NS, SOA, PTR, MX, TXT, SRV,
   SSHFP, and SPF records.
 
 * Restartable record iterators with user-specified sorting. Iterate over MX
@@ -36,8 +39,8 @@ A non-blocking DNS resolver library in a single .c file.
   single dns_rr_foreach loop. Interruptible loops supported with
   dns_rr_grep.
 
-* Thoughtful /etc/resolv.conf, /etc/nsswitch.conf, and /etc/hosts
-  integration. Easy to change system defaults, or to skip entirely.
+*~~Thoughtful /etc/resolv.conf, /etc/nsswitch.conf, and /etc/hosts
+ integration. Easy to change system defaults, or to skip entirely.
 
 * getaddrinfo-like auxiliary interface.
 
@@ -45,7 +48,7 @@ A non-blocking DNS resolver library in a single .c file.
   asynchronous local cache for use by the core resolver.
 
 * "Smart" queries which automatically dereference NS, MX, SRV, PTR, etc. to
-  A or AAAA records. Recursing, caching nameservers don't usually do this
+  A or ~~AAAA~~ records. Recursing, caching nameservers don't usually do this
   explicitly, but merely rely on the authoritative server to include glue,
   which won't exist for out-of-bailiwick references (very common these
   days). This means software must do two separate logical DNS operations; a
@@ -65,22 +68,9 @@ A non-blocking DNS resolver library in a single .c file.
 * Used successfully by many projects for many years, including several
   Silicon Valley giants.
 
-* Regularly testing on Linux, OS X, OpenBSD, FreeBSD, NetBSD, and Solaris.
-  Occassionally tested in MinGW environment. Builds with GCC, Clang, and
-  SunPro.
-
-### spf.c
-
-Asynchronous SPF resolver--no threading, no forking, no callbacks, no
-library dependencies.
-
-* A single source file. Requires Ragel precompiler, but no run-time
-  dependencies other than dns.c. The Ragel translation can be done once
-  and the result stored if you don't plan on hacking spf.c.
-* Passes over 90% of OpenSPF test suite. 100% test suite compliance is not
-  the goal, as some tests are fairly debatable. (The SPF specification has some bugs.)
-* Used successfully in countless MTA installations and for billions (trillions?)
-  of queries.
+* Regularly testing on ~~Linux, OS X, OpenBSD, FreeBSD, NetBSD, and Solaris.
+  ~~Occassionally tested in MinGW environment. Builds with GCC, Clang, and
+  ~~SunPro.
 
 ## Build
 
