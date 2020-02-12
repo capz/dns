@@ -1,6 +1,8 @@
 ## Notes
 This fork is a hacked-up version of the original, modified to work on a Nintendo Gamecube (at least, that's the aim, since libogc doesn't have DNS features)
 
+- currently not building
+
 Removed:
 * IPV6 support
 * platform support for anything other than Nintendo Gamecube
